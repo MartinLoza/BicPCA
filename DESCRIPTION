@@ -1,0 +1,12 @@
+Package: BicPCA
+Type: Package
+Title: Select the number of PCs using the Bayesian Information Criterion
+Version: 0.1.0
+Authors@R: person("Martin", "Loza", email = "martin.loza.lopez@gmail.com", role = c("aut", "cre"), 
+    comment = c(ORCID = "0000-0002-3342-2643"))
+Description: Automatic choose of the number of principal components
+    using the Bayesian Informacion Criterion (BIC)
+License: MIT + file LICENSE
+Encoding: UTF-8
+LazyData: true
+RoxygenNote: 7.1.1
