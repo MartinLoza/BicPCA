@@ -45,7 +45,7 @@ getBicPca <- function(pcaData = NULL, K = NULL){
   d = length(eig)
   logL <- rep(NA, length(K))
 
-  for(k in K){
+  for(k in seq_len(K)){
     logL[k] <- getBic(eig = eig, N = N, d = d, k = k)
   }
   return(logL)
