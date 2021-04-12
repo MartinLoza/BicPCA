@@ -38,10 +38,23 @@ getBic <- function(eig = NULL, N = NULL, d = NULL, k = NULL){
 #' @export
 #'
 #' @examples
-getBicPca <- function(pcaData = NULL, K = NULL){
+getBicPca <- function(pcaData = NULL, eig = NULL, K = NULL, N = NULL){
 
-  eig <- (pcaData$sdev)^2
-  N = nrow(pcaData$x)
+  if(is.null(eig)){
+    if(is.null(pcaData))
+      stop("Either the pcaData or the eigen values from the covariance matrix should be provided.")
+
+    eig <- (pcaData$sdev)^2
+    N = nrow(pcaData$x)
+  }
+
+  if(is.null(N))
+    stop("The number of samples must be provided.")
+
+  if(is.null(K)){
+    K = N    # if K is not provided, we search over all the available data
+  }
+
   d = length(eig)
   logL <- rep(NA, length(K))
 

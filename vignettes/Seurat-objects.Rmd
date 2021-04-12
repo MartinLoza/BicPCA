@@ -51,6 +51,7 @@ To use the BIC to define the number of PCs we need the standard deviations of th
 ```{r}
 length(x[["pca"]]@stdev)
 ```
+
 The good thing is that in order to use the BIC we can provide the eigen values of the covariance matrix of the centered data. 
 
 ```{r}
