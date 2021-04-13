@@ -4,7 +4,7 @@
 \alias{getBicPca}
 \title{getBicPca}
 \usage{
-getBicPca(pcaData = NULL, K = NULL)
+getBicPca(pcaData = NULL, eig = NULL, K = NULL, N = NULL)
 }
 \arguments{
 \item{pcaData}{PCA object}
