@@ -1,5 +1,5 @@
 ---
-title: "Seurat-objects"
+title: "Using bicPCA on Seurat objects"
 output: rmarkdown::html_vignette
 vignette: >
   %\VignetteIndexEntry{Seurat-objects}
@@ -10,7 +10,9 @@ vignette: >
 ```{r, include = FALSE}
 knitr::opts_chunk$set(
   collapse = TRUE,
-  comment = "#>"
+  comment = "#>",
+  fig.width = 7, 
+  fig.height = 5
 )
 ```
 
@@ -20,14 +22,17 @@ We first load the BicPCA package
 library(BicPCA)
 library(ggplot2)
 library(Seurat)
+library(patchwork)
 
 seed = 777
+set.seed(seed)
 ```
 
-We load stored data from tabula muris
+On this test, we use the spleen data from Tabula Muris, which provides a Seurat object. The data can be downloaded from this link: https://ndownloader.figshare.com/files/13092395 
 
 ```{r}
-load(file = "/Users/MARTIN LOZA/Documents/Projects/Data/Tabula_Muris/facs_Thymus_seurat_tiss.Robj")
+file <- "/Users/Data/"    #use your preferred directory
+load(file = paste0(file,"facs_Spleen_seurat_tiss.Robj"))
 x <- UpdateSeuratObject(tiss)
 rm(tiss)
 x
@@ -35,30 +40,33 @@ x
 
 # Standard workflow
 
-According with the elbow plot, we would like to use around 20 dimensions, but this is a really subjective way to do it. Minka (2000) provides an alternative way using the Bayesian Information Criterion (BIC) over a probabilistic PCA. We then need to calculate the BIC for a desired set of PCs and define the number of PCs as the one with the minimum BIC score.
+According with the elbow plot we would like to use between 6 to 20 dimensions, but this is a really subjective way to do it. Minka (2000) provides an alternative way using the Bayesian Information Criterion (BIC) over a probabilistic PCA. We then need to calculate the BIC for a desired set of PCs and define the number of PCs to use as those with the minimum BIC score.
 
 ```{r}
 x <- NormalizeData(x, verbose = FALSE)
 x <- FindVariableFeatures(x, verbose = FALSE)
 x <- ScaleData(x, verbose = FALSE)
-x <- RunPCA(x, npcs = 70, verbose = FALSE)
-ElbowPlot(x, ndims = 70)
 x
 ```
 
-To use the BIC to define the number of PCs we need the standard deviations of the complete PCA's dimensions (e.g., if we use 2000 variable features, we need the 2000 standad deviation of the corresponding PCA).  This is a problem for Seurat objects as it uses the package irlba to compute the PCA and we just btain the s.d. of the selected PCs  
+We can directly use our Seurat object on the FindNumberPC function to calculate the BIC for a set of PCs (e.g. using dim2Test = 40, the function will calculate the BIC for the set [1,40] of PCs). If we set returnBIC = TRUE, we will obtain the BIC scores for each of the tested dimension. 
 
 ```{r}
-length(x[["pca"]]@stdev)
+selDim <- FindNumberPC(x, dim2Test = 40, returnBIC = TRUE)
+selDim$selPCA
+plot(selDim$BIC)
 ```
-
-The good thing is that in order to use the BIC we can provide the eigen values of the covariance matrix of the centered data. 
+We can use the selected dimensions on downstream analyses as visualization.
 
 ```{r}
-scaledData <- x@assays$RNA@scale.data
-eig1 <- (prcomp(x = t(scaledData), center = FALSE, scale. = FALSE)$sdev)^2
-eig2 <- cov(scaledData %*% t(scaledData))
+x <- RunUMAP(x, reduction = "pca", dims = 1:selDim$selPCA, verbose = FALSE)
+DimPlot(x, group.by = "cell_ontology_class", label = TRUE, label.size = 4) + NoLegend() + NoGrid()
 ```
+
+
+
+
+
 
 
 
